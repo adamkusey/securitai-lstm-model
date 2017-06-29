@@ -71,3 +71,7 @@ model.fit(X_train, Y_train, epochs=3, batch_size=10)
 # Evaluate model
 res = model.evaluate(X_test, Y_test, verbose=0)
 print("Accuracy: %.2f%%" % (res[1] * 100))
+
+# Save model
+model.save_weights('securitai-lstm-weights.h5')
+model.save('securitai-lstm-model.h5')
