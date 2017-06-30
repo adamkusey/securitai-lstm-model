@@ -66,7 +66,7 @@ model.add(Dropout(0.2))
 model.add(Dense(1, activation='sigmoid'))
 model.compile(loss = 'binary_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
 print(model.summary())
-model.fit(X_train, Y_train, epochs=3, batch_size=10)
+model.fit(X_train, Y_train, epochs=3, batch_size=256)
 
 # Evaluate model
 res = model.evaluate(X_test, Y_test, verbose=0)
