@@ -75,3 +75,5 @@ print("Accuracy: %.2f%%" % (res[1] * 100))
 # Save model
 model.save_weights('securitai-lstm-weights.h5')
 model.save('securitai-lstm-model.h5')
+with open('securitai-lstm-model.json', 'w') as outfile:
+    outfile.write(model.to_json())
