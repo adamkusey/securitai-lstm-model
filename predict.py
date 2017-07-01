@@ -35,7 +35,7 @@ for index, item in enumerate(X):
 tokenizer = Tokenizer(num_words=None, filters='\t\n', split=' ', char_level=False)
 tokenizer.fit_on_texts(X)
 
-word_dict_file = 'build/test-word-dictionary.json'
+word_dict_file = 'build/word-dictionary.json'
 
 if not os.path.exists(os.path.dirname(word_dict_file)):
     os.makedirs(os.path.dirname(word_dict_file))
