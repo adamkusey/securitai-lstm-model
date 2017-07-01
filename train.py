@@ -11,12 +11,11 @@ from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer
-numpy.random.seed(7)
 
 if len(sys.argv) > 1:
     csv_file = sys.argv[1]
 else:
-    csv_file = 'data/access-sm.csv'
+    csv_file = 'data/access.csv'
 
 dataframe = pandas.read_csv(csv_file, engine='python', quotechar='|', header=None)
 dataset = dataframe.values
@@ -29,7 +28,7 @@ Y = dataset[:,1]
 # This will allow us to easily parse the word dictionary
 for index, item in enumerate(X):
     # Quick hack to space out json elements
-    X[index] = json.dumps(json.loads(item))
+    X[index] = json.dumps(json.loads(item, object_pairs_hook=OrderedDict), indent=1)
 
 tokenizer = Tokenizer(num_words=None, filters='\t\n', split=' ', char_level=False)
 tokenizer.fit_on_texts(X)

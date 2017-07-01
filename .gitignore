@@ -1,2 +1,7 @@
 build/
 data/
+securitai-lstm-model.h5
+securitai-lstm-model.json
+securitai-lstm-model_metadata.json
+securitai-lstm-model_weights.buf
+securitai-lstm-weights.h5
