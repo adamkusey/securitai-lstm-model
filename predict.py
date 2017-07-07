@@ -19,7 +19,6 @@ if len(sys.argv) > 1:
 else:
     exit()
 
-print log_entry
 dataframe = pandas.read_csv('data/access.csv', engine='python', quotechar='|', header=None)
 dataset = dataframe.values
 
@@ -44,9 +43,7 @@ with open(word_dict_file, 'w') as outfile:
     json.dump(tokenizer.word_index, outfile)
 
 log_entry = json.dumps(json.loads(log_entry, object_pairs_hook=OrderedDict), indent=1)
-print [log_entry]
 seq = tokenizer.texts_to_sequences([log_entry])
-print seq
 max_log_length = 1024
 log_entry_processed = sequence.pad_sequences(seq, maxlen=max_log_length)
 
