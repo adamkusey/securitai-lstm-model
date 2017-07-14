@@ -48,29 +48,28 @@ X = tokenizer.texts_to_sequences(X)
 
 max_log_length = 1024
 train_size = int(len(dataset) * .75)
-test_size = len(dataset) - train_size
 
 X_processed = sequence.pad_sequences(X, maxlen=max_log_length)
 X_train, X_test = X_processed[0:train_size], X_processed[train_size:len(X_processed)]
 Y_train, Y_test = Y[0:train_size], Y[train_size:len(Y)]
 
-# Create models
 embedding_vector_length = 32
+
 model = Sequential()
 model.add(Embedding(num_words, embedding_vector_length, input_length=max_log_length))
 model.add(Dropout(0.2))
 # LSTM specific dropout, try this if layer dropout isn't the best regularization.
-#model.add(LSTM(100, dropout=0.2, recurrent_dropout=0.2))
-model.add(LSTM(100))
+#model.add(LSTM(50, dropout=0.2, recurrent_dropout=0.2))
+model.add(LSTM(50))
 model.add(Dropout(0.2))
 model.add(Dense(1, activation='sigmoid'))
 model.compile(loss = 'binary_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
 print(model.summary())
-model.fit(X_train, Y_train, epochs=3, batch_size=8)
+model.fit(X_train, Y_train, epochs=2, batch_size=256)
 
 # Evaluate model
 res = model.evaluate(X_test, Y_test, verbose=0)
-print("Accuracy: %.2f%%" % (res[1] * 100))
+print("Model Accuracy: %0.2f" % (res[1] * 100))
 
 # Save model
 model.save_weights('securitai-lstm-weights.h5')
