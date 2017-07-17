@@ -3,15 +3,13 @@ import os
 import json
 import pandas
 import numpy
-from keras.datasets import imdb
+from collections import OrderedDict
 from keras.models import Sequential
-from keras.layers import Dropout
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer
-from collections import OrderedDict
 
 if len(sys.argv) > 1:
     csv_file = sys.argv[1]

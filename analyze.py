@@ -1,9 +1,6 @@
 import sys
 import os
-import json
 import pandas
-import numpy
-from collections import OrderedDict
 
 if len(sys.argv) > 1:
     csv_file = sys.argv[1]
