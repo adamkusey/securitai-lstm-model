@@ -31,7 +31,7 @@ for index, item in enumerate(X):
     # Quick hack to space out json elements
     X[index] = json.dumps(json.loads(item, object_pairs_hook=OrderedDict), indent=1)
 
-tokenizer = Tokenizer(num_words=None, filters='\t\n', split=' ', char_level=False)
+tokenizer = Tokenizer(num_words=1000, filters='\t\n', split=' ', char_level=False)
 tokenizer.fit_on_texts(X)
 
 # Extract and save word dictionary
@@ -53,23 +53,17 @@ X_processed = sequence.pad_sequences(X, maxlen=max_log_length)
 X_train, X_test = X_processed[0:train_size], X_processed[train_size:len(X_processed)]
 Y_train, Y_test = Y[0:train_size], Y[train_size:len(Y)]
 
-embedding_vector_length = 32
-
 model = Sequential()
-model.add(Embedding(num_words, embedding_vector_length, input_length=max_log_length))
-model.add(Dropout(0.2))
-# LSTM specific dropout, try this if layer dropout isn't the best regularization.
-#model.add(LSTM(50, dropout=0.2, recurrent_dropout=0.2))
-model.add(LSTM(50))
-model.add(Dropout(0.2))
+model.add(Embedding(num_words, 32, input_length=max_log_length))
+model.add(LSTM(50, dropout=0.2, recurrent_dropout=0.2))
 model.add(Dense(1, activation='sigmoid'))
-model.compile(loss = 'binary_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
+model.compile(loss = 'binary_crossentropy', optimizer = 'rmsprop', metrics = ['accuracy'])
 print(model.summary())
 model.fit(X_train, Y_train, epochs=2, batch_size=256)
 
 # Evaluate model
 res = model.evaluate(X_test, Y_test, verbose=0)
-print("Model Accuracy: %0.2f" % (res[1] * 100))
+print("Model Accuracy: {:0.2f}%".format(res[1] * 100))
 
 # Save model
 model.save_weights('securitai-lstm-weights.h5')
