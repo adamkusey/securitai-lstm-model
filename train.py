@@ -3,13 +3,14 @@ import os
 import json
 import pandas
 import numpy
-from collections import OrderedDict
+from keras.datasets import imdb
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer
+from collections import OrderedDict
 
 if len(sys.argv) > 1:
     csv_file = sys.argv[1]
@@ -23,13 +24,7 @@ dataset = dataframe.values
 X = dataset[:,0]
 Y = dataset[:,1]
 
-# Transform each log entry in X to include spaces
-# This will allow us to easily parse the word dictionary
-for index, item in enumerate(X):
-    # Quick hack to space out json elements
-    X[index] = json.dumps(json.loads(item, object_pairs_hook=OrderedDict), indent=1)
-
-tokenizer = Tokenizer(num_words=1000, filters='\t\n', split=' ', char_level=False)
+tokenizer = Tokenizer(filters='\t\n', char_level=True)
 tokenizer.fit_on_texts(X)
 
 # Extract and save word dictionary
@@ -39,12 +34,12 @@ if not os.path.exists(os.path.dirname(word_dict_file)):
     os.makedirs(os.path.dirname(word_dict_file))
 
 with open(word_dict_file, 'w') as outfile:
-    json.dump(tokenizer.word_index, outfile)
+    json.dump(tokenizer.word_index, outfile, ensure_ascii=False)
 
 num_words = len(tokenizer.word_index)+1
 X = tokenizer.texts_to_sequences(X)
 
-max_log_length = 1024
+max_log_length = 4096
 train_size = int(len(dataset) * .75)
 
 X_processed = sequence.pad_sequences(X, maxlen=max_log_length)
@@ -57,7 +52,7 @@ model.add(LSTM(50, dropout=0.2, recurrent_dropout=0.2))
 model.add(Dense(1, activation='sigmoid'))
 model.compile(loss = 'binary_crossentropy', optimizer = 'rmsprop', metrics = ['accuracy'])
 print(model.summary())
-model.fit(X_train, Y_train, epochs=2, batch_size=256)
+model.fit(X_train, Y_train, epochs=3, batch_size=256)
 
 # Evaluate model
 res = model.evaluate(X_test, Y_test, verbose=0)

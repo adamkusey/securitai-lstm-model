@@ -17,36 +17,22 @@ if len(sys.argv) > 1:
 else:
     exit()
 
-dataframe = pandas.read_csv('data/access.csv', engine='python', quotechar='|', header=None)
+dataframe = pandas.read_csv('data/dev-access.csv', engine='python', quotechar='|', header=None)
 dataset = dataframe.values
 
 # Preprocess dataset
 X = dataset[:,0]
 
-# Transform each log entry in X to include spaces
-# This will allow us to easily parse the word dictionary
-for index, item in enumerate(X):
-    # Quick hack to space out json elements
-    X[index] = json.dumps(json.loads(item, object_pairs_hook=OrderedDict), indent=1)
-
-tokenizer = Tokenizer(num_words=None, filters='\t\n', split=' ', char_level=False)
+tokenizer = Tokenizer(filters='\t\n', char_level=True)
 tokenizer.fit_on_texts(X)
-
-word_dict_file = 'build/word-dictionary.json'
-
-if not os.path.exists(os.path.dirname(word_dict_file)):
-    os.makedirs(os.path.dirname(word_dict_file))
-
-with open(word_dict_file, 'w') as outfile:
-    json.dump(tokenizer.word_index, outfile)
 
 log_entry = json.dumps(json.loads(log_entry, object_pairs_hook=OrderedDict), indent=1)
 seq = tokenizer.texts_to_sequences([log_entry])
-max_log_length = 1024
+max_log_length = 4096
 log_entry_processed = sequence.pad_sequences(seq, maxlen=max_log_length)
 
 model = load_model('securitai-lstm-model.h5')
 model.load_weights('securitai-lstm-weights.h5')
 model.compile(loss = 'binary_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
 prediction = model.predict(log_entry_processed)
-print prediction
+print prediction[0]
