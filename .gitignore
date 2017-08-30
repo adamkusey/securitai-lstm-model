@@ -1,5 +1,6 @@
 build/
 data/
+logs/
 securitai-lstm-model.h5
 securitai-lstm-model.json
 securitai-lstm-model_metadata.json

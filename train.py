@@ -4,8 +4,9 @@ import json
 import pandas
 import numpy
 import optparse
+from keras.callbacks import TensorBoard
 from keras.models import Sequential
-from keras.layers import LSTM, Dense, Dropout, Conv1D, GlobalAveragePooling1D, MaxPooling1D
+from keras.layers import LSTM, Dense, Dropout
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer
@@ -18,6 +19,16 @@ def train(csv_file):
     # Preprocess dataset
     X = dataset[:,0]
     Y = dataset[:,1]
+
+    for index, item in enumerate(X):
+        # Quick hack to space out json elements
+        reqJson = json.loads(item, object_pairs_hook=OrderedDict)
+        del reqJson['timestamp']
+        del reqJson['headers']
+        del reqJson['source']
+        del reqJson['route']
+        del reqJson['responsePayload']
+        X[index] = json.dumps(reqJson, separators=(',', ':'))
 
     tokenizer = Tokenizer(filters='\t\n', char_level=True)
     tokenizer.fit_on_texts(X)
@@ -34,21 +45,24 @@ def train(csv_file):
     num_words = len(tokenizer.word_index)+1
     X = tokenizer.texts_to_sequences(X)
 
-    max_log_length = 768
+    max_log_length = 1024
     train_size = int(len(dataset) * .75)
 
     X_processed = sequence.pad_sequences(X, maxlen=max_log_length)
     X_train, X_test = X_processed[0:train_size], X_processed[train_size:len(X_processed)]
     Y_train, Y_test = Y[0:train_size], Y[train_size:len(Y)]
 
+    tb_callback = TensorBoard(log_dir='./logs', embeddings_freq=1)
+
     model = Sequential()
     model.add(Embedding(num_words, 32, input_length=max_log_length))
-    model.add(LSTM(128, dropout=0.2))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
+    model.add(LSTM(64, recurrent_dropout=0.5))
+    model.add(Dropout(0.5))
     model.add(Dense(1, activation='sigmoid'))
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
-    model.fit(X_train, Y_train, validation_split=0.25, epochs=3, batch_size=128)
+    model.fit(X_train, Y_train, validation_split=0.25, epochs=3, batch_size=128, callbacks=[tb_callback])
 
     # Evaluate model
     score, acc = model.evaluate(X_test, Y_test, verbose=1, batch_size=128)
