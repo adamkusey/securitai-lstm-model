@@ -1,5 +1,6 @@
 build/
-data/
+data/*
+!dev-access.csv
 logs/
 securitai-lstm-model.h5
 securitai-lstm-model.json
